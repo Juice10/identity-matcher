@@ -275,20 +275,20 @@ module IdentityMatcher
 
             def match_gmail(username,password)
                 begin
-                    require 'gmailer'
+                    require 'contacts'
                 rescue MissingSourceFile
-                    puts "Please install gmailer"
+                    puts "Please install contacts" # http://github.com/cardmagic/contacts/tree/master
                     return []
                 end
-                gmail = GMailer.connect(username, password)
-                contacts = gmail.fetch(:contact => "all")
+                gmail = Contacts::Gmail.new(username, password)
+                contacts = gmail.contacts.map {|c| {:name => c[0], :email => c[1]}} # make the contacts array understandable
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map(&:email)).uniq
                 emails = users.map(&:email)
                 names = users.map(&:name)
                 unused_contacts = contacts.select { |contact| 
-                    !emails.include?(contact.email) && !names.include?(contact.name) 
+                    !emails.include?(contact[:email]) && !names.include?(contact[:name]) 
                 }
-                return [users, unused_contacts.map { |contact| { :name => contact.name, :email => contact.email } }]
+                return [users, unused_contacts.map { |contact| { :name => contact[:name], :email => contact[:email] } }]
                 #return users
             end
 
