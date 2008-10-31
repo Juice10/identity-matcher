@@ -282,7 +282,7 @@ module IdentityMatcher
                 end
                 gmail = Contacts::Gmail.new(username, password)
                 contacts = gmail.contacts.map {|c| {:name => c[0], :email => c[1]}} # make the contacts array understandable
-                users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map(&:email)).uniq
+                users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map{|c| c[:email]}).uniq
                 emails = users.map(&:email)
                 names = users.map(&:name)
                 unused_contacts = contacts.select { |contact| 
