@@ -115,7 +115,7 @@ module IdentityMatcher
                 return res
             end
 
-            def upgrade_gmail_token(token, keyfile="#{RAILS_ROOT}/db/dopplr_google.key")
+            def upgrade_gmail_token(token, keyfile="#{RAILS_ROOT}/config/google.key")
                 token_result = self.authsub_get(token,"https://www.google.com/accounts/AuthSubSessionToken",keyfile)
                 if token_result.body.match(/^Token=(.*)$/)
                     return $1
@@ -124,7 +124,7 @@ module IdentityMatcher
                 end
             end
 
-            def match_windowslive(token, initfile="#{RAILS_ROOT}/db/windowslive.xml")
+            def match_windowslive(token, initfile="#{RAILS_ROOT}/config/windowslive.xml")
                 def to_signed(n)
                     length = 64
 
