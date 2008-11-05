@@ -217,7 +217,7 @@ module IdentityMatcher
                 
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
                 emails = users.map(&self.im_options[:email_field].to_sym)
-                names = users.map(&self.im_options[:name_field])
+                names = users.map(&self.im_options[:name_field].to_sym)
                 unused_contacts = contacts.select { |contact| 
                     !emails.include?(contact["email"]) && !names.include?(contact["name"])
                 }
