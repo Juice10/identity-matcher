@@ -21,6 +21,7 @@ module IdentityMatcher
                 self.im_options = options
                 self.im_options[:nickname_field]  ||= :nick
                 self.im_options[:email_field]     ||= :email
+                self.im_options[:name_field]      ||= :name
 
          class_eval <<-END
            include IdentityMatcher::Methods::InstanceMethods    
@@ -213,10 +214,10 @@ module IdentityMatcher
                         contacts << found
                     end
                 }
-
+                
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
-                emails = users.map(&:email)
-                names = users.map(&:name)
+                emails = users.map(&self.im_options[:email_field].to_sym)
+                names = users.map(&self.im_options[:name_field])
                 unused_contacts = contacts.select { |contact| 
                     !emails.include?(contact["email"]) && !names.include?(contact["name"])
                 }
