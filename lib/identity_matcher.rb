@@ -134,9 +134,9 @@ module IdentityMatcher
                 end
 
                 require 'hpricot'
-                require File.directory(__FILE__) + '/vendor/windowslivelogin'
-                require File.directory(__FILE__) + '/vendor/hmac'
-                require File.directory(__FILE__) + '/vendor/hmac-sha2'
+                require File.dirname(__FILE__) + '/vendor/windowslivelogin'
+                require File.dirname(__FILE__) + '/vendor/hmac'
+                require File.dirname(__FILE__) + '/vendor/hmac-sha2'
 
                 wll = WindowsLiveLogin.initFromXml(initfile)
 
