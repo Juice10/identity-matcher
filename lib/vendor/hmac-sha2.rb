@@ -1,4 +1,3 @@
-require 'hmac'
 require 'digest/sha2'
 
 module HMAC
