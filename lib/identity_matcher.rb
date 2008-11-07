@@ -1,8 +1,3 @@
-# require windowslive dependencies
-require File.directory(__FILE__) + '/vendor/windowslivelogin'
-require File.directory(__FILE__) + '/vendor/hmac'
-require File.directory(__FILE__) + '/vendor/hmac-sha2'
-
 module IdentityMatcher
     module Methods
         # included is called from the ActiveRecord::Base
@@ -139,7 +134,10 @@ module IdentityMatcher
                 end
 
                 require 'hpricot'
-                require 'windowslivelogin'
+                require File.directory(__FILE__) + '/vendor/windowslivelogin'
+                require File.directory(__FILE__) + '/vendor/hmac'
+                require File.directory(__FILE__) + '/vendor/hmac-sha2'
+
                 wll = WindowsLiveLogin.initFromXml(initfile)
 
                 consent = wll.processConsentToken(token)
