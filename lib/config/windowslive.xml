@@ -1,0 +1,13 @@
+<!--
+  Copy this file to RAILS_ROOT/config/windowslive.xml
+  And follow this guide to get your application key: http://msdn.microsoft.com/en-us/library/cc287659.aspx
+  Fill in your info below
+-->
+
+<windowslivelogin>
+  <appid>0000000000000000</appid>
+  <secret>abcdefghijklmnopqrstuvwxyz01234</secret>
+  <returnurl>http://yoursite.com/return/path</returnurl>
+  <policyurl>http://yoursite.com/path/to/policy</policyurl>
+  <securityalgorithm>wsignin1.0</securityalgorithm>
+</windowslivelogin>

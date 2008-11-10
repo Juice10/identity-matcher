@@ -1,3 +1,8 @@
+require File.dirname(__FILE__) + '/vendor/windowslivelogin'
+require File.dirname(__FILE__) + '/vendor/hmac'
+require File.dirname(__FILE__) + '/vendor/hmac-sha2'
+
+
 module IdentityMatcher
     module Methods
         # included is called from the ActiveRecord::Base
@@ -123,7 +128,12 @@ module IdentityMatcher
                     return nil
                 end
             end
-
+            
+            def windowslive_authentication_url(initfile="#{RAILS_ROOT}/config/windowslive.xml")
+              wll = WindowsLiveLogin.initFromXml(initfile)
+              wll.getConsentUrl("Contacts.View")
+            end
+            
             def match_windowslive(token, initfile="#{RAILS_ROOT}/config/windowslive.xml")
                 def to_signed(n)
                     length = 64
@@ -134,10 +144,6 @@ module IdentityMatcher
                 end
 
                 require 'hpricot'
-                require File.dirname(__FILE__) + '/vendor/windowslivelogin'
-                require File.dirname(__FILE__) + '/vendor/hmac'
-                require File.dirname(__FILE__) + '/vendor/hmac-sha2'
-
                 wll = WindowsLiveLogin.initFromXml(initfile)
 
                 consent = wll.processConsentToken(token)
