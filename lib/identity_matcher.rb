@@ -233,7 +233,7 @@ module IdentityMatcher
                 return [users, unused_contacts.map { |contact| { :name => contact["name"], :email => contact["address"] } }]
             end
 
-            def match_gmail_api(token, since=nil, keyfile="#{RAILS_ROOT}/db/dopplr_google.key")
+            def match_gmail_api(token, since=nil, keyfile="#{RAILS_ROOT}/config/google.key")
                 require 'open-uri'
                 require 'openssl'
                 require 'base64'
