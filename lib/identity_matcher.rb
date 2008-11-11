@@ -232,7 +232,26 @@ module IdentityMatcher
                 }
                 return [users, unused_contacts.map { |contact| { :name => contact["name"], :email => contact["address"] } }]
             end
-
+            
+            # To use the gmail api you must do the following:
+            # 
+            # 1. {Register your webapp with google}[http://code.google.com/apis/accounts/docs/RegistrationForWebAppsAuto.html]
+            # 
+            # 2. {Generate a key and certificate}[http://code.google.com/apis/gdata/authsub.html#Registered]
+            # 
+            # 3. {Upload the certificate to google}[https://www.google.com/accounts/ManageDomains]
+            # 
+            # 4. Put the key in your config directory 
+            #    (eg. /config/google.key)
+            # 
+            # 5. point your users to the following url:
+            #    +https://www.google.com/accounts/AuthSubRequest?next=http://www.your-web-app.com/return/path&scope=http%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2Fcontacts%2F&secure=1&session=1+
+            #    (change the http://www.your-web-app/return/path to your desired return path)
+            # 
+            # 6. The token you receive you need to pass to +match_gmail_api+
+            # 
+            #      User.match_gmail_api(params[:token])
+            # 
             def match_gmail_api(token, since=nil, keyfile="#{RAILS_ROOT}/config/google.key")
                 require 'open-uri'
                 require 'openssl'
