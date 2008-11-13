@@ -301,7 +301,8 @@ module IdentityMatcher
                 }
                 return [users, unused_contacts.map { |contact| { :name => contact["name"], :email => contact["address"] } }]
             end
-
+            
+            # depricated, use match_gmail_api
             def match_gmail(username,password)
                 begin
                     require 'contacts'
@@ -452,7 +453,45 @@ module IdentityMatcher
                 results = results.select { |x| names.include?(x.name) }.uniq
                 return [results, []]
             end
-    
+            
+            # Flickr
+            # requires simpleflickr[http://github.com/pietern/simpleflickr] & Hpricot
+            def match_flickr(token, params = {})
+                require 'open-uri'
+	              begin
+	                  require 'simpleflickr'
+	              rescue MissingSourceFile
+	                  puts "Please install simpleflickr"
+	                  return nil
+	              end
+                begin
+                    require 'hpricot'
+                rescue MissingSourceFile
+                    puts "Please install Hpricot"
+                    return []
+                end
+                
+	              unless params.key?(:api_key) && params.key?(:secret)
+	                  raise ArgumentError.new("Params should contain at least :api_key and :secret")
+	              end
+                
+	              params = {
+	                  :auth_token => token,
+	                  :perms => 'read',
+	                  :method => 'flickr.contacts.getList'
+	              }.merge(params)
+	              
+	              flickr_api = SimpleFlickr::WebAuthentication.new(params)
+	              contact_list_url = flickr_api.url_for(params)
+	              doc = Hpricot.XML(open(contact_list_url))
+                contacts = (doc/"contact")
+                realnames = contacts.map {|c| c.attributes['realname']}.uniq - [""]
+                usernames = contacts.map {|c| c.attributes['username']}.uniq
+                
+                users = (self.send("find_all_by_#{self.im_options[:name_field]}", realnames) + 
+                         self.send("find_all_by_#{self.im_options[:nickname_field]}", usernames)).uniq
+                return [users, []]
+            end
         end
         
 
