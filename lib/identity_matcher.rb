@@ -456,7 +456,7 @@ module IdentityMatcher
             
             # Flickr
             # requires simpleflickr[http://github.com/pietern/simpleflickr] & Hpricot
-            def match_flickr(token, params = {})
+            def match_flickr(frob, params = {})
                 require 'open-uri'
 	              begin
 	                  require 'simpleflickr'
@@ -476,21 +476,30 @@ module IdentityMatcher
 	              end
                 
 	              params = {
-	                  :auth_token => token,
 	                  :perms => 'read',
 	                  :method => 'flickr.contacts.getList'
 	              }.merge(params)
 	              
 	              flickr_api = SimpleFlickr::WebAuthentication.new(params)
+	              params[:auth_token] = flickr_api.get_token_from_frob(frob)
+	              
 	              contact_list_url = "http://flickr.com" + flickr_api.url_for(params)
 	              doc = Hpricot.XML(open(contact_list_url))
-                contacts = (doc/"contact")
-                realnames = contacts.map {|c| c.attributes['realname']}.uniq - [""]
-                usernames = contacts.map {|c| c.attributes['username']}.uniq
-                
-                users = (self.send("find_all_by_#{self.im_options[:nickname_field]}", realnames) + 
-                         self.send("find_all_by_#{self.im_options[:username_field]}", usernames)).uniq
-                return [users, []]
+	              # there are no errors
+	              if (doc/'err').empty?
+                    contacts = (doc/"contact")
+                    realnames = contacts.map {|c| c.attributes['realname']}.uniq - [""]
+                    usernames = contacts.map {|c| c.attributes['username']}.uniq
+
+                    users = (self.send("find_all_by_#{self.im_options[:nickname_field]}", realnames) + 
+                             self.send("find_all_by_#{self.im_options[:username_field]}", usernames)).uniq
+                    return [users, []]
+                # ERROR!
+                else
+                    # TODO: do something nicer with the error
+                    puts error_msg = "Flickr API ERROR: " + (doc/'err').first.attributes['msg']
+                    return error_msg
+	              end
             end
         end
         
