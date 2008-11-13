@@ -482,7 +482,7 @@ module IdentityMatcher
 	              }.merge(params)
 	              
 	              flickr_api = SimpleFlickr::WebAuthentication.new(params)
-	              contact_list_url = flickr_api.url_for(params)
+	              contact_list_url = "http://flickr.com" + flickr_api.url_for(params)
 	              doc = Hpricot.XML(open(contact_list_url))
                 contacts = (doc/"contact")
                 realnames = contacts.map {|c| c.attributes['realname']}.uniq - [""]
