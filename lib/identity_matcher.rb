@@ -24,9 +24,9 @@ module IdentityMatcher
                 # add class and istance methods
                 cattr_accessor :im_options
                 self.im_options = options
-                self.im_options[:nickname_field]  ||= :nick
+                self.im_options[:nickname_field]  ||= :name
                 self.im_options[:email_field]     ||= :email
-                self.im_options[:name_field]      ||= :name
+                self.im_options[:username_field]  ||= :username
 
          class_eval <<-END
            include IdentityMatcher::Methods::InstanceMethods    
@@ -181,7 +181,7 @@ module IdentityMatcher
                 end
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |c| c[:email] }).uniq
                 emails = users.map(&self.im_options[:email_field].to_sym).uniq
-                names = users.map(&self.im_options[:name_field].to_sym).uniq
+                names = users.map(&self.im_options[:username_field].to_sym).uniq
                 unused = []
                 contacts.each do |contact|
                     if !emails.include?(contact[:email]) and !names.include?(contact[:name])
@@ -226,7 +226,7 @@ module IdentityMatcher
                 
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
                 emails = users.map(&self.im_options[:email_field].to_sym)
-                names = users.map(&self.im_options[:name_field].to_sym)
+                names = users.map(&self.im_options[:username_field].to_sym)
                 unused_contacts = contacts.select { |contact| 
                     !emails.include?(contact["email"]) && !names.include?(contact["name"])
                 }
@@ -295,7 +295,7 @@ module IdentityMatcher
 
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
                 emails = users.map(&self.im_options[:email_field].to_sym)
-                names = users.map(&self.im_options[:name_field].to_sym)
+                names = users.map(&self.im_options[:username_field].to_sym)
                 unused_contacts = contacts.select { |contact| 
                     !emails.include?(contact["email"]) && !names.include?(contact["name"])
                 }
@@ -314,7 +314,7 @@ module IdentityMatcher
                 contacts = gmail.contacts.map {|c| {:name => c[0], :email => c[1]}} # make the contacts array understandable
                 users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map{|c| c[:email]}).uniq
                 emails = users.map(&self.im_options[:email_field].to_sym)
-                names = users.map(&self.im_options[:name_field].to_sym)
+                names = users.map(&self.im_options[:username_field].to_sym)
                 unused_contacts = contacts.select { |contact| 
                     !emails.include?(contact[:email]) && !names.include?(contact[:name]) 
                 }
@@ -488,8 +488,8 @@ module IdentityMatcher
                 realnames = contacts.map {|c| c.attributes['realname']}.uniq - [""]
                 usernames = contacts.map {|c| c.attributes['username']}.uniq
                 
-                users = (self.send("find_all_by_#{self.im_options[:name_field]}", realnames) + 
-                         self.send("find_all_by_#{self.im_options[:nickname_field]}", usernames)).uniq
+                users = (self.send("find_all_by_#{self.im_options[:nickname_field]}", realnames) + 
+                         self.send("find_all_by_#{self.im_options[:username_field]}", usernames)).uniq
                 return [users, []]
             end
         end
