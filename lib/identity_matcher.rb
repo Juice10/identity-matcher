@@ -531,7 +531,7 @@ module IdentityMatcher
                   # check to see if user was used or not
                   !local_emails.include?(contact[:email]) && !local_nicknames.include?(contact[:nickname]) && !local_usernames.include?(contact[:username])
               }
-              return [users, unused_contacts.map { |contact| { :name => (contact[:nickname] || contact[:username]), :email => contact[:email] } }]
+              return [local_users, unused_contacts.map { |contact| { :name => (contact[:nickname] || contact[:username]), :email => contact[:email] } }]
             end
         end
         
