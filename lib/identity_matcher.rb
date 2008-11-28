@@ -292,14 +292,16 @@ module IdentityMatcher
                         more_results = false
                     end
                 end
-
-                users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
-                emails = users.map(&self.im_options[:email_field].to_sym)
-                names = users.map(&self.im_options[:username_field].to_sym)
-                unused_contacts = contacts.select { |contact| 
-                    !emails.include?(contact["email"]) && !names.include?(contact["name"])
-                }
-                return [users, unused_contacts.map { |contact| { :name => contact["name"], :email => contact["address"] } }]
+                
+                return match(contacts.map {|c| {:nickname => c['name'], :email => c['address']}})
+                
+                # users = self.send("find_all_by_#{self.im_options[:email_field]}", contacts.map { |contact| contact["address"] }).uniq
+                # emails = users.map(&self.im_options[:email_field].to_sym)
+                # names = users.map(&self.im_options[:username_field].to_sym)
+                # unused_contacts = contacts.select { |contact| 
+                #     !emails.include?(contact["email"]) && !names.include?(contact["name"])
+                # }
+                # return [users, unused_contacts.map { |contact| { :name => contact["name"], :email => contact["address"] } }]
             end
             
             # depricated, use match_gmail_api
@@ -500,6 +502,36 @@ module IdentityMatcher
                     puts error_msg = "Flickr API ERROR: " + (doc/'err').first.attributes['msg']
                     return error_msg
 	              end
+            end
+            
+            # +remote_contacts+ must be formatted like the following:
+            # 
+            #   [{:email => 'john@doe.com, :nickname => 'John Doe', :username => 'johndoe'},
+            #    {:email => 'sam@doe.com,  :nickname => 'Sam Doe',  :username => 'samdoe'}]
+            # 
+            # +:email+, +:nickname+ and +:username+ are all optional, but you must have at least one of them.
+            def match(remote_contacts)
+              remote_usernames = (remote_contacts.map{|c| c[:username].to_s}) - ["", nil]).uniq
+              remote_nicknames = (remote_contacts.map{|c| c[:nickname].to_s}) - ["", nil]).uniq
+              remote_emails    = (remote_contacts.map{|c| c[:email].to_s   }) - ["", nil]).uniq
+              
+              local_users = []
+              local_users += self.send("find_all_by_#{self.im_options[:username_field]}", remote_usernames) if remote_usernames.any?
+              local_users += self.send("find_all_by_#{self.im_options[:nickname_field]}", remote_nicknames) if remote_nicknames.any?
+              local_users += self.send("find_all_by_#{self.im_options[:email_field]}",    remote_emails)    if remote_emails.any?
+              local_users.uniq
+              
+              local_emails    = local_users.map(&self.im_options[:email_field].to_sym)
+              local_usernames = local_users.map(&self.im_options[:username_field].to_sym)
+              local_nicknames = local_users.map(&self.im_options[:nickname_field].to_sym)
+              
+              unused_contacts = remote_contacts.select { |contact| 
+                  # without email we can't send the user an invite so the data is of no use to us
+                  contact[:email] && 
+                  # check to see if user was used or not
+                  !local_emails.include?(contact[:email]) && !local_nicknames.include?(contact[:nickname]) && !local_usernames.include?(contact[:username])
+              }
+              return [users, unused_contacts.map { |contact| { :name => (contact[:nickname] || contact[:username]), :email => contact[:email] } }]
             end
         end
         
