@@ -511,9 +511,9 @@ module IdentityMatcher
             # 
             # +:email+, +:nickname+ and +:username+ are all optional, but you must have at least one of them.
             def match(remote_contacts)
-              remote_usernames = (remote_contacts.map{|c| c[:username].to_s}) - ["", nil]).uniq
-              remote_nicknames = (remote_contacts.map{|c| c[:nickname].to_s}) - ["", nil]).uniq
-              remote_emails    = (remote_contacts.map{|c| c[:email].to_s   }) - ["", nil]).uniq
+              remote_usernames = (remote_contacts.map{|c| c[:username].to_s} - ["", nil]).uniq
+              remote_nicknames = (remote_contacts.map{|c| c[:nickname].to_s} - ["", nil]).uniq
+              remote_emails    = (remote_contacts.map{|c| c[:email].to_s   } - ["", nil]).uniq
               
               local_users = []
               local_users += self.send("find_all_by_#{self.im_options[:username_field]}", remote_usernames) if remote_usernames.any?
